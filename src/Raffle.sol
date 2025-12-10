@@ -54,6 +54,9 @@ enum RuffleState {
     //events
     // 1. make migrations easier if you wanna redeploy again
     //2.  Makes front end indexing easier - getting data off blockchain becomes easier
+event RaffleEntered(address indexed player);
+event WinnerPicked(address indexed winner);
+
 
 //since we are inheriting from VRFConsumerBaseV2Plus we slao tweak the constructor here
 //we put "address vrfCoordinator" so that we can pass it to the parent constructor just like "VRFConsumerBaseV2Plus(vrfCoordinator)"
@@ -120,16 +123,26 @@ VRF2PlusClient.VRF2PlusRequest memory request = VRF2PlusClient.RandomWordsReques
 //fn below is internal because the chain link VRF will call rawRandomWords which then calls fulFillRnadomWords
 function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
 //to pick a winner we use a modulo function to pick a winner in our array of players
-uint256 indexOfWinner= rondomWords[0] % s_players.length;
+
+//we dont want when new players add for the old ones to still keep their spotsuint256 indexOfWinner= rondomWords[0] % s_players.length;
+//we keep reseting the state of the array
 address payable recentWinner = s_players[indexOfWinner];
 //keeping track of 
 s_recentWinner = recentWinner;
+
+s_recentWinner=RaffleState.OPEN; //repopening raffle //resetting the state of the raffle
+s_players=new address payable[](0); //resetting the array of players
+//above produces a new blank array
+s_lastTimeStamp=block.timestamp; //resetting the timestamp//our clock can start on click winner
+
+
 // low-level call in Solidity, often used for sending Ether or interacting with contracts when you don’t know the ABI in advance. 
 (bool success,)=recentWinner.call{value: address(this).balance}(""); //we give the winner the entire balance of the contract
 if(!success){
 revert Raffle__TransferFailed();
 
 }
+emit WinnerPicked(recentWinner);
 }
 
 function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external{
