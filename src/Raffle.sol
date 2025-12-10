@@ -1,0 +1,169 @@
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+
+uint256 private immutable i_interval;
+bytes32 private immutable i_keyHash;
+address payable[] private s_players;
+uint256 private s_lastTimestamp;
+//
+address private s_recentWinner; //to keep track of the most recent winner
+address private _recentWinner; 
+uint32 private constant NUM_WORDS = 1; //number of random words we want to get
+/**
+ *@title Raffle contract
+ *@author Louis Asingizwe
+ *@notice This contract implements a simple raffle system where users can enter a raffle by sending Ether.
+ *@dev Implements Chainlink VRFv2.5
+ */
+
+contract Raffle is VRFConsumerBaseV2Plus {
+    /**ERRORS */
+error Raffle_TransferFailed(); //custom error to handle transfer failure
+    //preferably use prefix of contract name
+    error Raffles__SendMoreToEnterRaffle();
+    /////////////////////////
+    uint32 private immutable i_callbackGasLimit; //gas limit for the callback request
+    uint256 private constant REQUEST_CONFIRMATIONS=3;
+    uint256 private immutable i_interval; //interval btn lottery rounds
+
+//type declaration
+//enums can be used to create custom types with a finite set of constant values
+//implicit conversion isnt allowed in enums
+// the enum below is to ensure that we dont pick a winner when we are already calculating a winner
+enum RuffleState {
+        OPEN, //raffle is open for entries
+        CALCULATING //raffle is calculating winner
+    } 
+
+
+
+    //state variable
+    uint256 private immutable i_entranceFee;
+    //to keep track of players we can use
+    //syntax to make an address array payable -  address payable[]
+    //datatype[] visibility name
+    //payable to enable an address receive
+    address payable[] private s_players;
+    address private immutable i_subscriptionId;
+    uint256 private s_lastTimestamp;
+    bool s_calculatingWinner; //to check if we are calculating a winner
+//Creating new types using enums(single type of a variable called an enum)
+
+    //events
+    // 1. make migrations easier if you wanna redeploy again
+    //2.  Makes front end indexing easier - getting data off blockchain becomes easier
+
+//since we are inheriting from VRFConsumerBaseV2Plus we slao tweak the constructor here
+//we put "address vrfCoordinator" so that we can pass it to the parent constructor just like "VRFConsumerBaseV2Plus(vrfCoordinator)"
+    constructor(uint256 entranceFee, uint256 interval, address vrfCoordinator,uint256 gasLane,uint256 ,uint32 callbackGasLimit) VRFConsumerBaseV2Plus(vrfCoordinator) {
+        i_entranceFee = entranceFee;
+        i_interval = interval;
+        i_callbackGasLimit=callbackGasLimit
+        //when we work with chain link VRF every node will get its own subscription id
+i_subscriptionId=subscriptionId;
+        s_lastTimestamp = block.timestamp;
+        i_keyHash =gasLane; //this is the keyHash for the VRF
+    }
+    //we can now request random words from the VRF coordinator
+    //this function will be called when we want to pick a winner
+VRF2PlusClient.VRF2PlusRequest memory request = VRF2PlusClient.RandomWordsRequest({
+        keyHash: i_keyHash,
+        subId: i_subscriptionId,
+        requestConfirmations: REQUEST_CONFIRMATIONS,
+        callbackGasLimit: i_callbackGasLimit,
+        numWords: NUM_WORDS,
+        extraArgs: VRF2PlusClient._argsToBytes(
+            VRF2PlusClient.ExtraArgsV1({nativePayment: false})
+        )
+    });
+    uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+    }//once we send the request above the chain link nide will wait for some blocks ..it will then generate random number 
+    //via fulfillRandomWords and thats how we shall get random number back 
+
+
+
+    //we wanna check time stamp and check if a winner exists
+    function pickWinner() external {
+        if ((block.timestamp - s_lastTimestamp) < i_interval) {
+            //reverting should occur because not enough time has passed
+            revert();
+        }
+        //check how much time has passed
+        //since we need to store snapshot(s_lastTimeStamp)
+
+
+//calling a struct from the contract VRFV2PlusClient
+//trying to create a struct with all syntax
+
+//WHEN WE HIT PICK WINNER.. IT WILL PICKUP THE REQUEST BELOW..it will give us request id then chainlink vrf will generate random number
+//chain link will respond by giving us random number because they are going to call fulfill random words function
+ VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest({//contract name.name of struct then you populate the values in there
+                keyHash: s_keyHash,//max gas you want to pay for the request 
+                //each vrf has its own s_keyHash
+                subId: i_subscriptionId,
+                requestConfirmations: REQUEST_CONFIRMATIONS,//how many confirmation schainlink node should wait before confirming random number
+                //should wait x number of blocks before confirming random number
+                callbackGasLimit: callbackGasLimit,//limit for how much gas is to be used for call back gas request 
+                numWords: NUM_WORDS, //number of random words we want to get
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
+
+                    VRFV2PlusClient.ExtraArgsV1({native Payment: false})
+                )
+            })     //we make the request bu calling vrfCoordinator contract
+             uint256 requestId = s_vrfCoordinator.requestRandomWords(request);}
+
+//abstract contracts can have undefined functions(fulfillRandomWords) and defined functions
+//defines what chainlink node will do when it returns for us the random number
+//fn below is internal because the chain link VRF will call rawRandomWords which then calls fulFillRnadomWords
+function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+//to pick a winner we use a modulo function to pick a winner in our array of players
+uint256 indexOfWinner= rondomWords[0] % s_players.length;
+address payable recentWinner = s_players[indexOfWinner];
+//keeping track of 
+s_recentWinner = recentWinner;
+// low-level call in Solidity, often used for sending Ether or interacting with contracts when you don’t know the ABI in advance. 
+(bool success,)=recentWinner.call{value: address(this).balance}(""); //we give the winner the entire balance of the contract
+if(!success){
+revert Raffle__TransferFailed();
+
+}
+}
+
+function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external{
+if (msg.sender !=address s(_vrfCoordinator)) {
+            revert OnlyCoordinatorCanFulfill(msg.sender,address(s_crfCoordinator));  
+        }
+        //we can now call the fulfillRandomWords function
+        fulfillRandomWords(requestId, randomWords);
+
+}
+        //this function is called by the VRF coordinator when the random number is ready
+
+    function enterRaffle() public payable {
+        //we would require users to pay something before they enter the ruffle
+        //require(
+        //msg.value >= i_entranceFee,
+        //"Not enough ETH sent to enter the raffle"
+        //);
+        // new version of solidity allows us to use custom errors
+        //custom error -  instead of require
+        //we dont need to work with require anymore
+        if (msg.value < i_entranceFee) {
+            revert Raffles__SendMoreToEnterRaffle();
+        }
+        //but newer versions allow us to add errors in the require statement
+        //   require(msg.value >= i_entranceFee, SendMoreToEnterRaffle());
+    }
+    event RaffleEntered(address indexed s_player);
+    //getter functions
+    //getters are all external -they’re meant to be called from outside the contract — like from a user, dApp, or another contract.
+    // getter is a function that lets you read the value of a variable from a smart contract.
+    function getEntranceFee() external view returns (uint256) {
+        return i_entranceFee;
+    }
+}
+//CHAINLINK VRF
+//VRF is done in 2 transactions
