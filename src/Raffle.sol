@@ -131,6 +131,8 @@ address payable recentWinner = s_players[indexOfWinner];
 s_recentWinner = recentWinner;
 
 s_recentWinner=RaffleState.OPEN; //repopening raffle //resetting the state of the raffle
+
+//array[](0)->reset array
 s_players=new address payable[](0); //resetting the array of players
 //above produces a new blank array
 s_lastTimeStamp=block.timestamp; //resetting the timestamp//our clock can start on click winner
@@ -154,6 +156,7 @@ if (msg.sender !=address s(_vrfCoordinator)) {
 
 }
         //this function is called by the VRF coordinator when the random number is ready
+        
 
     function enterRaffle() public payable {
         //we would require users to pay something before they enter the ruffle
