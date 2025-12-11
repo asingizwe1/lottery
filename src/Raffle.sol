@@ -118,14 +118,35 @@ VRF2PlusClient.VRF2PlusRequest memory request = VRF2PlusClient.RandomWordsReques
             })     //we make the request bu calling vrfCoordinator contract
              uint256 requestId = s_vrfCoordinator.requestRandomWords(request);}
 
+/**CEI:checks,effects,Interactions pattern
+ * Checks
+ * 
+ *  Effects - internal state changes [state variables to be changed]
+ * 
+ * Interactions[external contract interactions]
+ * 
+ */
+
+
+
+
 //abstract contracts can have undefined functions(fulfillRandomWords) and defined functions
 //defines what chainlink node will do when it returns for us the random number
 //fn below is internal because the chain link VRF will call rawRandomWords which then calls fulFillRnadomWords
 function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
 //to pick a winner we use a modulo function to pick a winner in our array of players
+//Checks
+//s_players.length should be greater than 0
+//12%10=2
+//10 players in the raffle
+
+
+
+//Effects - internal state changes [state variables to be changed]//
 
 //we dont want when new players add for the old ones to still keep their spotsuint256 indexOfWinner= rondomWords[0] % s_players.length;
 //we keep reseting the state of the array
+uint256 indexOfWinner= randomWords[0] % s_players.length;
 address payable recentWinner = s_players[indexOfWinner];
 //keeping track of 
 s_recentWinner = recentWinner;
@@ -137,7 +158,7 @@ s_players=new address payable[](0); //resetting the array of players
 //above produces a new blank array
 s_lastTimeStamp=block.timestamp; //resetting the timestamp//our clock can start on click winner
 
-
+// Interactions[external contract interactions]//
 // low-level call in Solidity, often used for sending Ether or interacting with contracts when you don’t know the ABI in advance. 
 (bool success,)=recentWinner.call{value: address(this).balance}(""); //we give the winner the entire balance of the contract
 if(!success){
