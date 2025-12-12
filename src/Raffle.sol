@@ -86,8 +86,42 @@ VRF2PlusClient.VRF2PlusRequest memory request = VRF2PlusClient.RandomWordsReques
     //via fulfillRandomWords and thats how we shall get random number back 
 
 
+//chainlink automation to automatically pick winner after a certain time interval
 
+
+//check data is used when we want to pass some data to the perform upkeep function
+//upkeepNeeded- is it time to pick winner
+
+function checkUpkeep(bytes calldata /*checkData*/) public view returns (bool upkeepNeeded, bytes memory /*performData*/) {
+     //upkeepNeeded- it is default to false
+     //you can as weel write bool only in return type but you must specify what it is in the logic
+     
+     /**
+      * @dev This function is called by chainlink nodes to see if lottery is ready to have winner picked
+      * the foolowing have to be true
+      * 1.time interval has passed btn raffle runs
+      * 2.lottery is open
+      * 3.contract has eth
+      * 4.implicitly, ur subscription has LINK
+      * @param IGNORED
+      * @return upkeedNeeded-true if its time to restart lottery
+      * @return ignored 
+      */
+     
+        bool isOpen = (s_raffleState == RaffleState.OPEN);
+        bool timeHasPassed = ((block.timestamp - s_lastTimestamp) >= i_interval);
+        bool hasPlayers = (s_players.length > 0);//players exist
+        bool hasBalance = address(this).balance > 0;//if user has eth
+        upkeepNeeded = (isOpen && timeHasPassed && hasPlayers && hasBalance);//if all those are true then upkeepNeeded will be true
+        //we dont use perform data for now
+
+        return(upkeepNeeded,"");
+    }
     //we wanna check time stamp and check if a winner exists
+    //we automate this function so that no one calls it using chainlink upkeep
+   
+   function performUpkeep
+   //convert our pick winner in to perform upkeep function
     function pickWinner() external {
         if ((block.timestamp - s_lastTimestamp) < i_interval) {
             //reverting should occur because not enough time has passed
