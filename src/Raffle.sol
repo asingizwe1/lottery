@@ -20,6 +20,7 @@ uint32 private constant NUM_WORDS = 1; //number of random words we want to get
 
 contract Raffle is VRFConsumerBaseV2Plus {
     /**ERRORS */
+    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 playersLength, uint256 raffleState); //custom error to handle upkeep not needed
 error Raffle_TransferFailed(); //custom error to handle transfer failure
     //preferably use prefix of contract name
     error Raffles__SendMoreToEnterRaffle();
@@ -33,9 +34,9 @@ error Raffle_TransferFailed(); //custom error to handle transfer failure
 //implicit conversion isnt allowed in enums
 // the enum below is to ensure that we dont pick a winner when we are already calculating a winner
 enum RuffleState {
-        OPEN, //raffle is open for entries
-        CALCULATING //raffle is calculating winner
-    } 
+        OPEN,//0 //raffle is open for entries
+        CALCULATING//1 //raffle is calculating winner
+    } //the elements are mapped to uint256 values starting from 0
 
 
 
@@ -120,7 +121,36 @@ function checkUpkeep(bytes calldata /*checkData*/) public view returns (bool upk
     //we wanna check time stamp and check if a winner exists
     //we automate this function so that no one calls it using chainlink upkeep
    
-   function performUpkeep
+   function performUpkeep(bytes memory /*performData*/) external {
+        //we check if upkeep is needed
+        (bool upkeepNeeded, ) = checkUpkeep("");//get the output of checkUpkeep function
+         //if upkeep is not needed we revert
+        if (!upkeepNeeded) {//call data can only be generated from a user's transaction input or offchain
+            //use custom error with parameters
+            revert Raffle__UpkeepNotNeeded(//when we revert the error we shall have more info as to why it failed
+                address(this).balance,//check for balance
+                s_players.length,//palyers
+                uint256(s_raffleState)
+            );
+        }
+        //we now change the state of the raffle to calculating so that no one can enter when we are picking a winner
+        s_raffleState = RaffleState.CALCULATING;
+        //THE CHAIN LINK NODES WILL CALL THE VRF COORDINATOR CONTRACT
+        //VRF (Verifiable Random Function) is a cryptographic primitive that generates random numbers in a way that is both provably fair and verifiable
+        VFR2PlusClient.VRF2PlusRequest memory request = VRF2PlusClient.RandomWordsRequest({
+        keyHash: i_keyHash, 
+        subId: i_subscriptionId,
+        requestConfirmations: REQUEST_CONFIRMATIONS,
+        callbackGasLimit: i_callbackGasLimit,
+        numWords: NUM_WORDS,
+        extraArgs: VRF2PlusClient._argsToBytes(
+            VRF2PlusClient.ExtraArgsV1({nativePayment: false})
+        )
+    });
+    uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
+        //we call the pick winner function
+
+    }
    //convert our pick winner in to perform upkeep function
     function pickWinner() external {
         if ((block.timestamp - s_lastTimestamp) < i_interval) {
