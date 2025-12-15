@@ -64,7 +64,7 @@ event WinnerPicked(address indexed winner);
 //since we are inheriting from VRFConsumerBaseV2Plus we slao tweak the constructor here
 //we put "address vrfCoordinator" so that we can pass it to the parent constructor just like "VRFConsumerBaseV2Plus(vrfCoordinator)"
     constructor(uint256 entranceFee, uint256 interval, address vrfCoordinator,uint256 gasLane,uint256 ,uint32 callbackGasLimit) VRFConsumerBaseV2Plus(vrfCoordinator) {
-        i_entranceFee = entranceFee;
+        i_entranceFee = entranceFee;//these could depend on the chain
         i_interval = interval;
         i_callbackGasLimit=callbackGasLimit;
         //when we work with chain link VRF every node will get its own subscription id
