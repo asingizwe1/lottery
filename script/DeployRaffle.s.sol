@@ -8,6 +8,40 @@ import {HelperConfig} from "../HelperConfig.s.sol";
 contract DeployRaffle is Script {
 function run() public{}
 
-//function deployContract() public() returns (Raffle,HelperConfig){}
+function deployContract() public() returns (Raffle,HelperConfig){
+HelperConfig helperConfig= new HelperConfig();//this is the helper config contract
+//helper functions like getConfig make scripts nicer
+//local ->deploy mocks,get local config
+//sepolia -> get sepolia config from mapping
+HelperConfig.NetworkConfig memory = helperConfig.getConfig(); //this is the network config
+
+vm.startBroadcast();
+
+Raffle raffle= new Raffle(//we can get the values from getConfig
+//because get config will return network config struct
+    config.entranceFee,
+    config.interval,
+    config.vrfCoordinator,
+    config.gasLane,
+    config.callbackGasLimit,
+    config.subscriptionId
+);
+
+vm.stopBroadcast();
+return (raffle,helperConfig);
+}
 
 }
+/**
+ * vm.startBroadcast() and vm.stopBroadcast() Do
+These aren’t Solidity functions themselves — they come from Foundry’s cheatcodes (specifically vm), which are used in script files when deploying
+ * ----vm.startBroadcast()
++Tells Foundry to start sending transactions to the blockchain (instead of just simulating them).
++Any contract creation or function call after this point will be broadcasted as a real transaction using the private key you specify.
+++like saying: “Okay, now actually send these actions to the network.”
+ * vm.stopBroadcast()
+
+Ends the broadcasting session.
++further calls won’t be sent as transactions.
++like saying: “Done sending transactions, go back to simulation mode.”
+ */
