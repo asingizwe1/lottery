@@ -35,7 +35,7 @@ error Raffle_TransferFailed(); //custom error to handle transfer failure
 //enums can be used to create custom types with a finite set of constant values
 //implicit conversion isnt allowed in enums
 // the enum below is to ensure that we dont pick a winner when we are already calculating a winner
-enum RuffleState {
+enum RaffleState {
         OPEN,//0 //raffle is open for entries
         CALCULATING//1 //raffle is calculating winner
     } //the elements are mapped to uint256 values starting from 0
@@ -277,6 +277,9 @@ if (msg.sender !=address s(_vrfCoordinator)) {
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
     }
+
+function getRaffleState() external view returns (s_raffleState){}
+return s_raffleState;
 }
 //CHAINLINK VRF
 //VRF is done in 2 transactions

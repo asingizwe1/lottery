@@ -37,5 +37,12 @@ uint256 public constant  STARTING_PLAYER_BALANCE=10 ether;
     subscriptionId=config.subscriptionId;
 
     }
+//do a sanity test ->raffle starts as open
+function testRaffleInitialisesInOpenState(){
+//or uint256(raffle.getRaffleState())==0
+//we could 
+assert(raffle.getRaffleState()==Raffle.RaffleState.OPEN);
+
+}
     
 }
