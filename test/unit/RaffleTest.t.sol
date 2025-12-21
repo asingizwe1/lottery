@@ -35,7 +35,7 @@ uint256 public constant  STARTING_PLAYER_BALANCE=10 ether;
     gasLane=config.gasLane;
     callbackGasLimit=config.callbackGasLimit;
     subscriptionId=config.subscriptionId;
-
+vm.deal(PLAYER,STARTING_PLAYER_BALANCE);//give player some money to play with
     }
     
 //forge test --mt test_name ->to run test
@@ -64,10 +64,12 @@ raffle.enterRaffle();//player will enter raffle without sending any money
 //it would be bad if raffle didnt record that people were entering raffle
 function testRaffleRecordsPlayerWhenTheyEnter(){
 //arrange
-vm.prank(PLAYER);
+vm.prank(PLAYER);//first give them money or this taste will fail
 //act
 raffle.enterRaffle{value:entranceFee}();
 //assert 
+address playerRecorded =raffle.getPlayer(0);
+assert(playerRecorded==PLAYER);
 
 
 }

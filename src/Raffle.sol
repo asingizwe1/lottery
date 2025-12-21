@@ -260,7 +260,7 @@ if (msg.sender !=address s(_vrfCoordinator)) {
         }
         //but newer versions allow us to add errors in the require statement
         //   require(msg.value >= i_entranceFee, SendMoreToEnterRaffle());
-    if(s_raffleState != RaffleState.OPEN){
+     if(s_raffleState != RaffleState.OPEN){
         revert Raffle__RaffleNotOpen();
     }
         //if they pay enough we add them to the players array
@@ -278,10 +278,14 @@ if (msg.sender !=address s(_vrfCoordinator)) {
         return i_entranceFee;
     }
 
-function getRaffleState() external view returns (s_raffleState){}
+function getRaffleState() external view returns (s_raffleState){
 
+    return s_raffleState;
+}
 
-return s_raffleState;
+function getPlayer(uint256 indexOfPlayer) external view returns (address){
+    return s_players[indexOfPlayer];
+
 }
 //CHAINLINK VRF
 //VRF is done in 2 transactions
