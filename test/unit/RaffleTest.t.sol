@@ -37,6 +37,10 @@ uint256 public constant  STARTING_PLAYER_BALANCE=10 ether;
     subscriptionId=config.subscriptionId;
 
     }
+    
+//forge test --mt test_name ->to run test
+
+
 //do a sanity test ->raffle starts as open
 function testRaffleInitialisesInOpenState(){
 //or uint256(raffle.getRaffleState())==0
@@ -56,5 +60,83 @@ raffle.enterRaffle();//player will enter raffle without sending any money
 
 }
 
+//test if raffle adds to the players array when someone enters the raffle
+//it would be bad if raffle didnt record that people were entering raffle
+function testRaffleRecordsPlayerWhenTheyEnter(){
+//arrange
+//act
+//assert 
+
 
 }
+
+}
+/**
+ * 1. Arrange
+This is the setup phase.
+You prepare the environment and initial state needed for the test.
+
+Deploy contracts (or use already deployed ones in setUp()).
+
+Initialize variables, balances, or mock data.
+
+Example in your raffle test:
+
+Deploy the Raffle contract.
+
+Fund it with some ETH if required.
+
+Set up a player address with a starting balance.
+
+solidity
+// Arrange
+address player = address(1);
+vm.deal(player, 1 ether); // give player some ETH
+⚡ 2. Act
+This is the execution phase.
+You perform the action that you want to test.
+
+Call the function under test.
+
+Trigger the behavior you want to verify.
+
+Example in your raffle test:
+
+The player enters the raffle by calling enterRaffle().
+
+solidity
+// Act
+vm.prank(player); // simulate player calling
+raffle.enterRaffle{value: 0.1 ether}();
+✅ 3. Assert
+This is the verification phase.
+You check that the outcome matches your expectations.
+
+Use assertEq, assertTrue, or assertFalse to confirm state changes.
+
+Verify balances, ownership, or emitted events.
+
+Example in your raffle test:
+
+Confirm that the player is recorded in the raffle’s player list.
+
+solidity
+// Assert
+assertEq(raffle.players(0), player);
+Putting it together
+solidity
+function testRaffleRecordsPlayerWhenTheyEnter() public {
+    // Arrange
+    address player = address(1);
+    vm.deal(player, 1 ether);
+
+    // Act
+    vm.prank(player);
+    raffle.enterRaffle{value: 0.1 ether}();
+
+    // Assert
+    assertEq(raffle.players(0), player);
+}
+👉 In short:
+ * 
+ */
