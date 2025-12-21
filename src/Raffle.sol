@@ -279,6 +279,8 @@ if (msg.sender !=address s(_vrfCoordinator)) {
     }
 
 function getRaffleState() external view returns (s_raffleState){}
+
+
 return s_raffleState;
 }
 //CHAINLINK VRF

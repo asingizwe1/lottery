@@ -64,7 +64,9 @@ raffle.enterRaffle();//player will enter raffle without sending any money
 //it would be bad if raffle didnt record that people were entering raffle
 function testRaffleRecordsPlayerWhenTheyEnter(){
 //arrange
+vm.prank(PLAYER);
 //act
+raffle.enterRaffle{value:entranceFee}();
 //assert 
 
 
