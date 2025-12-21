@@ -40,9 +40,21 @@ uint256 public constant  STARTING_PLAYER_BALANCE=10 ether;
 //do a sanity test ->raffle starts as open
 function testRaffleInitialisesInOpenState(){
 //or uint256(raffle.getRaffleState())==0
-//we could 
+//we could typecast raffle.getRaffleState
 assert(raffle.getRaffleState()==Raffle.RaffleState.OPEN);
 
 }
     
+function testRaffleRevertWhenYouDontPayEnough(){
+  //1- pretend to be player
+//arrange
+vm.prank(PLAYER);
+//Act / assert
+//2-expect revert
+vm.expectRevert(Raffle.Raffle__SendMoreToEnterRaffle.selector); //from foundry book
+raffle.enterRaffle();//player will enter raffle without sending any money
+
+}
+
+
 }
