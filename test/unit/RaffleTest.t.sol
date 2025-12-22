@@ -74,6 +74,28 @@ assert(playerRecorded==PLAYER);
 
 }
 
+//TESTING EVENTS
+//use expectEmit cheatcode from foundry
+//function expectEmit() external;
+/**function expectEmit(
+    bool checkTopic1,
+    bool checkTopic2,
+    bool checkTopic3,
+    bool checkData
+) external; */
+
+/**function expectEmit(address emitter) external;
+
+function expectEmit(
+    bool checkTopic1,
+    bool checkTopic2,
+    bool checkTopic3,
+    bool checkData,
+    address emitter
+) external; */
+
+
+
 }
 /**
  * 1. Arrange
