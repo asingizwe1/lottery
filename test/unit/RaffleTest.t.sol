@@ -7,6 +7,9 @@ import {Raffle} from "../../src/Raffle.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 
 contract RaffleTest is Test {
+  event RaffleEntered(address indexed player);
+event WinnerPicked(address indexed winner);
+
 //initialise variables for the DeployContract method that was in the script
 Raffle public raffle;
 HelperConfig public helperConfig;
@@ -94,8 +97,22 @@ function expectEmit(
     address emitter
 ) external; */
 
+//you must copy events at the top of the test file
+function testEnteringRaffleEmitssEvent(){
+//arrange
+vm.prank(PLAYER);
+//act
+//we start with true because player is the first indexed parameter in the RaffleEntered Event
+//then the rest are false because we dont have more indexed parameters
+vm.expectEmit(true,false,false,false,address(raffle));
+emit RaffleEntered(PLAYER);
+//1. expecting to emit event
+//2. this is the event we expect to emit
 
-
+//assert
+//if you put address 0 test will fail because it wont match the contract address
+raffle.enterRaffle{value:entranceFee}();
+}
 }
 /**
  * 1. Arrange
