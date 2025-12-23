@@ -113,6 +113,30 @@ emit RaffleEntered(PLAYER);
 //if you put address 0 test will fail because it wont match the contract address
 raffle.enterRaffle{value:entranceFee}();
 }
+
+function dontAllowPlayersToEnterWhileRaffleIsCalculating() public{
+vm.prank(PLAYER);
+//call perform upkeep to see if it is calculating
+//call perform raffle to ensure that that is calculating
+//because of the check in the function enterRaffle
+raffle.enterRaffle{value:entranceFee}();
+//to ensure time has passsed
+//vm.warp(-sets the vlock.timestamp
+vm.warp(block.timestamp + interval +1);//current block +30 +1 sec
+//roll- will change the block.number
+vm.roll(block.number +1);//increment block number by 1
+raffle.performUpkeep(""); //this will change the state of the raffle to calculating
+//once it passes it will kick off the chainlink vrf process
+//it will set the raffle state to calculating
+
+
+///ACT/ASSERT
+vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector); //from foundry book
+vm.prank(PLAYER);
+raffle.enterRaffle{value:entranceFee}();
+
+}
+
 }
 /**
  * 1. Arrange
