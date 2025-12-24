@@ -41,7 +41,7 @@ uint256 public constant  STARTING_PLAYER_BALANCE=10 ether;
 vm.deal(PLAYER,STARTING_PLAYER_BALANCE);//give player some money to play with
     }
     
-//forge test --mt test_name ->to run test
+//forge test --mt test_name ->to run test add -vvvv to see where the specific issue could be
 
 
 //do a sanity test ->raffle starts as open
@@ -125,7 +125,11 @@ raffle.enterRaffle{value:entranceFee}();
 vm.warp(block.timestamp + interval +1);//current block +30 +1 sec
 //roll- will change the block.number
 vm.roll(block.number +1);//increment block number by 1
-raffle.performUpkeep(""); //this will change the state of the raffle to calculating
+
+raffle.performUpkeep(""); //this will change the state of the raffle to calculating <- caused error
+//with chainlink vrf you have to create your own subscription and "consumer"
+//so that random users cant use your subscription id
+
 //once it passes it will kick off the chainlink vrf process
 //it will set the raffle state to calculating
 

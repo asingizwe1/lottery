@@ -17,6 +17,7 @@ HelperConfig.NetworkConfig memory = helperConfig.getConfig(); //this is the netw
 
 vm.startBroadcast();
 
+//update the script so that we add our consumer
 Raffle raffle= new Raffle(//we can get the values from getConfig
 //because get config will return network config struct
     config.entranceFee,
