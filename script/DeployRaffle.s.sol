@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 import {Script} from "forge-std/Script.sol";
 import {Raffle} from "../Raffle.sol";//.. -> means down a directory
 import {HelperConfig} from "../HelperConfig.s.sol";
-
+import {CreateSubscription} from "script/Interactions.s.sol";
 
 contract DeployRaffle is Script {
 function run() public{}
@@ -15,6 +15,12 @@ HelperConfig helperConfig= new HelperConfig();//this is the helper config contra
 //sepolia -> get sepolia config from mapping
 HelperConfig.NetworkConfig memory = helperConfig.getConfig(); //this is the network config
 
+if(config.subscriptionId==0){
+CreateSubscription createSubscription= new CreateSubscription();
+//call create su
+
+
+}
 vm.startBroadcast();
 
 //update the script so that we add our consumer
@@ -30,9 +36,9 @@ Raffle raffle= new Raffle(//we can get the values from getConfig
 
 vm.stopBroadcast();
 return (raffle,helperConfig);
-}
 
-}
+
+}}
 /**
  * vm.startBroadcast() and vm.stopBroadcast() Do
 These aren’t Solidity functions themselves — they come from Foundry’s cheatcodes (specifically vm), which are used in script files when deploying
