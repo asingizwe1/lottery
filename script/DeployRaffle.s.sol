@@ -8,7 +8,7 @@ import {CreateSubscription} from "script/Interactions.s.sol";
 contract DeployRaffle is Script {
 function run() public{}
 
-function deployContract() public() returns (Raffle,HelperConfig){
+function deployContract() public returns (Raffle,HelperConfig){
 HelperConfig helperConfig= new HelperConfig();//this is the helper config contract
 //helper functions like getConfig make scripts nicer
 //local ->deploy mocks,get local config
@@ -17,9 +17,10 @@ HelperConfig.NetworkConfig memory = helperConfig.getConfig(); //this is the netw
 
 if(config.subscriptionId==0){
 CreateSubscription createSubscription= new CreateSubscription();
-//call create su
-
-
+//call create subscription
+(config.subscriptionId,config.vrfCoordinator)=
+CreateSubscription.createSubscription(config.vrfCoordinator);
+//we need to fund it
 }
 vm.startBroadcast();
 

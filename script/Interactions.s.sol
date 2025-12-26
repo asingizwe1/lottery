@@ -30,5 +30,20 @@ function run() external {
     createSubscriptionUsingConfig();
 }
 
+contract FundSubscription is script {
+uint256 public constant FUND_AMOUNT=3 ether;//3link
+
+function fundSubscriptionUsingConfig() public {
+HelperConfig helperConfig= new HelperConfig();//this is the helper config contract
+//we need to get the vrf coordinator address so we follow the steps below
+address vrfCoordinator= helperConfig.getConfig().vrfCoordinator;
+//we shall need vrf coordinator address and subscription id to fund the subscription
+uint256 subscriptionId= helperConfig.getConfig().subscriptionId;
+
+}
+
+function run() public{}
+
+}
 
 }

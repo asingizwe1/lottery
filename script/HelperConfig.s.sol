@@ -28,6 +28,7 @@ struct NetworkConfig{//from the constructor of Raffle.sol
     uint256 gasLane;
     uint32 callbackGasLimit;
     uint64 subscriptionId;
+    address link;
 }
 //create and object of NetworkConfig
 NetworkConfig public localNetworkConfig;
@@ -70,6 +71,7 @@ function getSepoliaEthConfig() public pure returns (NetworkConfig memory){
         gasLane:0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
         callbackGasLimit:500000,
         subscriptionId:0
+        link:0x779877A7B0D9E8603169DdbD7836e478b462478
     });
   
   //the function below may not be pure because its where we are gonna deploy our mocks
@@ -96,6 +98,7 @@ localNetworkConfig=NetworkConfig({
     gasLane:0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15,//this is a default key hash for the mock
     callbackGasLimit:500000,
     subscriptionId:0
+    
 });
 return localNetworkConfig;
 
