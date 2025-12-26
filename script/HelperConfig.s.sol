@@ -2,7 +2,8 @@
 pragma solidity ^0.8.18;
 import {Script} from "forge-std/Script.sol";
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2_5Mock.sol";  
-//impoer
+//import link
+import {LinkToken} from "test/mocks/LinkToken.sol"
 
 
 abstract contract CodeConstants {
@@ -72,7 +73,7 @@ function getSepoliaEthConfig() public pure returns (NetworkConfig memory){
         vrfCoordinator:0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625,
         gasLane:0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
         callbackGasLimit:500000,
-        subscriptionId:0
+        subscriptionId:0//paste the subscription id from the chain link website ui after connecting
         link:0x779877A7B0D9E8603169DdbD7836e478b462478
     });
   
@@ -93,6 +94,10 @@ VRFCoordinatorV2Mock vrfCoordinatorV2Mock=new VRFCoordinatorV2Mock(//INPUT WHAT 
     MOCK_GAS_LINK,//_gasPriceLink
     MOCK_WEI_PER_UINT_LINK
 );
+//here we deploy new link token
+LinkToken linkToken=new LinkToken();
+vm.stopBroadcast();
+
 localNetworkConfig=NetworkConfig({
     entranceFee:0.01 ether,
     interval:30,
@@ -100,8 +105,13 @@ localNetworkConfig=NetworkConfig({
     gasLane:0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15,//this is a default key hash for the mock
     callbackGasLimit:500000,
     subscriptionId:0
-
+link: address(linkToken)//here we are getting a new link token
 });
 return localNetworkConfig;
 
 }}}
+
+//forge script script/Interactions.s.sol.FundSubscription --rpc-url $SEPOLIA_RPC_URL --acount default --boradcast
+//the above will send some link as per what we have defined in our fundSubscription
+
+//we are doing all this because the raffle.performUpkeep was failing due to lack of link

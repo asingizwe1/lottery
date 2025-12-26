@@ -1,10 +1,11 @@
 //SPDX License-Identifier: MIT
 pragma solidity ^0.8.18;
-import {script,console} from "forge-std/Script.sol";
-import {HelperConfig} from "../script/HelperConfig.s.sol";
+import {Script,console} from "forge-std/Script.sol";
+import {HelperConfig,CodeConstants} from "../script/HelperConfig.s.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2_5Mock.sol";
-contract CreateSubscription is script {
+import {LinkToken} from "test/mocks/LinkToken.sol";
 
+contract CreateSubscription is script {
 function createSubscriptionUsingConfig() public returns (uint256,address){
 HelperConfig helperConfig= new HelperConfig();//this is the helper config contract
 //we need to get the vrf coordinator address so we follow the steps below
@@ -30,7 +31,7 @@ function run() external {
     createSubscriptionUsingConfig();
 }
 
-contract FundSubscription is script {
+contract FundSubscription is Script, CodeConstants {
 uint256 public constant FUND_AMOUNT=3 ether;//3link
 
 function fundSubscriptionUsingConfig() public {
@@ -39,10 +40,34 @@ HelperConfig helperConfig= new HelperConfig();//this is the helper config contra
 address vrfCoordinator= helperConfig.getConfig().vrfCoordinator;
 //we shall need vrf coordinator address and subscription id to fund the subscription
 uint256 subscriptionId= helperConfig.getConfig().subscriptionId;
+address linkToken=helperConfig.getConfig().link;
+fundSubscription(vrfCoordinator,subscriptionId, linkToken);
+}
+
+function fundSubscription(address vrfCoordinator,uint256 subscriptionId, address linkToken) public{
+    
+console.log("Funding subscription",subscriptionId);
+console.log("Funding vrfCoordinator",vrfCoordinator);
+console.log("On ChainId",block.chainid);
+
+if(block.chainId==LOCAL_CHAIN_ID){
+    vm.startBroadcast();
+VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId,FUND_AMOUNT);
+  vm.startBroadcast()
+}else
+{
+  vm.startBroadcast();
+LinkToken(linkToken).transferAndCall(vrfCoordinator,FUND_AMOUNT,abi.encode(subscriptionId));
+//you can fund subscription with native eth
+  vm.startBroadcast();
+}
 
 }
 
-function run() public{}
+function run() public{
+fundSubscriptionUsingConfig(); 
+
+}
 
 }
 
