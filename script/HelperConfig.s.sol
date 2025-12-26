@@ -2,6 +2,8 @@
 pragma solidity ^0.8.18;
 import {Script} from "forge-std/Script.sol";
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2_5Mock.sol";  
+//impoer
+
 
 abstract contract CodeConstants {
 uint256 public constant ETH_SEPOLIA_CHAIN_ID=11155111;
@@ -98,7 +100,7 @@ localNetworkConfig=NetworkConfig({
     gasLane:0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15,//this is a default key hash for the mock
     callbackGasLimit:500000,
     subscriptionId:0
-    
+
 });
 return localNetworkConfig;
 

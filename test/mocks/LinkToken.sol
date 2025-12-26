@@ -3,6 +3,8 @@
 pragma solidity ^0.8.0;
 
 import {ERC20} from "@solmate/tokens/ERC20.sol";
+// forge install transmissions11/solmate@v6 --no-commit
+
 
 interface ERC677Receiver {
     function onTokenTransfer(address _sender, uint256 _value, bytes memory _data) external;
