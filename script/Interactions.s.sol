@@ -4,6 +4,8 @@ import {Script,console} from "forge-std/Script.sol";
 import {HelperConfig,CodeConstants} from "../script/HelperConfig.s.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2_5Mock.sol";
 import {LinkToken} from "test/mocks/LinkToken.sol";
+import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
+
 
 contract CreateSubscription is script {
 function createSubscriptionUsingConfig() public returns (uint256,address){
@@ -71,4 +73,22 @@ fundSubscriptionUsingConfig();
 
 }
 
+}
+
+//adding a aconsumer
+contract AddConsumer is Script{
+//install foundry dev ops
+function addConsumerUsingConfig(address mostRecentlyDeployed) public{
+HelperConfig helperConfig= new HelperConfig();
+uint256 subId = helperConfig.getConfig().subscriptionId;
+address vrfCoordinator= helperConfig.getConfig().vrfCoordinator;
+addConsumer(mostRecentlyDeployed,//??//somecontract,
+vrfCoordinator,subId);
+}
+function addConsumer(address contractToAddtoVrf,
+address vrfCoordinator , uint256 subId) public
+
+function run() external {
+address mostRecentlyDeployed=DevOpsTools.get_most_recent_deployment("Raflle",block.chainId);
+}
 }
