@@ -3,10 +3,12 @@ pragma solidity ^0.8.18;
 import {Script} from "forge-std/Script.sol";
 import {Raffle} from "../Raffle.sol";//.. -> means down a directory
 import {HelperConfig} from "../HelperConfig.s.sol";
-import {CreateSubscription} from "script/Interactions.s.sol";
+import {CreateSubscription,FundSubscription,AddConsumer} from "script/Interactions.s.sol";
 
 contract DeployRaffle is Script {
-function run() public{}
+function run() public{
+    deployContract();
+}
 
 function deployContract() public returns (Raffle,HelperConfig){
 HelperConfig helperConfig= new HelperConfig();//this is the helper config contract
@@ -20,7 +22,11 @@ CreateSubscription createSubscription= new CreateSubscription();
 //call create subscription
 (config.subscriptionId,config.vrfCoordinator)=
 CreateSubscription.createSubscription(config.vrfCoordinator);
-//we need to fund it
+//we need to fund it after importing it
+
+FundSubscription fundSubscription = new FundSubscription();
+fundSubscription.fundSubscription(config.vrfCoordinator,confg.sunscriptionId,config.link)
+
 }
 vm.startBroadcast();
 
@@ -36,6 +42,14 @@ Raffle raffle= new Raffle(//we can get the values from getConfig
 );
 
 vm.stopBroadcast();
+//we first deploy then add a consumer
+AddConsumer addConsumer=new AddConsumer();
+
+//WE DONT NEED TO BRADCAST BECUASE THE ADD CONSUMER FUNCTION HAS IT
+addConsumer.addConsumer(address(raffle)//THE RAFFLE IS OUR NEW DEPLOYED RAFFLE
+config.vrfCoordinator,config.subscriptionId
+);
+
 return (raffle,helperConfig);
 
 

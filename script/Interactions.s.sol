@@ -86,9 +86,19 @@ addConsumer(mostRecentlyDeployed,//??//somecontract,
 vrfCoordinator,subId);
 }
 function addConsumer(address contractToAddtoVrf,
-address vrfCoordinator , uint256 subId) public
+address vrfCoordinator , uint256 subId) public{
+console.log("adding consumer contract",contractToAddtoVrf);
+console.log("to vrfCoordinator",vrfCoordinator);
+console.log("On ChainId",block.chainId);
+vm.startBroadcast();
+VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subId,constractToAddToVrf);//in the dashboard at chain link when you click add consumer this line will ensure that this works the same
+vm.stopBroadcast();
+
+}
 
 function run() external {
 address mostRecentlyDeployed=DevOpsTools.get_most_recent_deployment("Raflle",block.chainId);
+//what ever the most recent contract grab that 
+addConsumerUsingConfig(mostRecentlyDeployed);
 }
 }
