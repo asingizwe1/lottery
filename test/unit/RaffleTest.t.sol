@@ -1,6 +1,9 @@
 //SPDX License-Identifier: MIT
 pragma solidity ^0.8.18;    
 
+//forge coverage --report debug -> what lines in our test suite that we havent tests
+//forge coverage --report debug >coverage.txt -> creates a new file with info about test coverage
+
 import {Test} from "forge-std/Test.sol";
 import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {Raffle} from "../../src/Raffle.sol";
@@ -158,7 +161,7 @@ assert(!upkeepNeeded);
 }
 
 function testCheckUpkeepReturnsFalseIfRaffleIsntOpen() public
-{
+{//arrange
 vm.prank(PLAYER);
 raffle.enterRaffle{value:entranceFee}();
 vm.warp(block.timestamp + interval +1);
@@ -171,6 +174,37 @@ raffle.performUpkeep("");
 assert(!upkeepNeeded);
 }
 //forge test --mt test_name
+
+//headers _your_header -> creates for you a header
+
+
+//testCheckUpkeepReturnsFalseIfEnoughTimeHasPassed
+//testCheckUpkeepReturnsTrueIfParametersAreGood
+
+//we want to ensure that perform upkeep is called when checkupkeep is true
+function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
+//arrange
+vm.prank(PLAYER);
+raffle.enterRaffle{value:entranceFee}();
+vm.warp(block.timestamp + interval +1);
+vm.roll(block.number +1);
+//act/assert
+raffle.performUpkeep("");//if this function errors then this test will fail
+
+
+
+}
+
+function testPerformUpkeepRevertsIfCheckUpkeepIsFalse() public 
+{
+//arrange - parameters we are going to input in our contract fucntion
+uint256 currentBalance=0;
+uint256 numPlayers=0;
+Raffle.RaffleState rState=raffle.getRaffleState();
+
+}
+//act/assert
+
 }
 /**
  * 1. Arrange
