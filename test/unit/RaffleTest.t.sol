@@ -141,6 +141,36 @@ raffle.enterRaffle{value:entranceFee}();
 
 }
 
+/*//////////////////////////////////////////////
+CHECKUPKEEP
+/////////////////////////////////////////////*/
+function testCheckUpkeepReturnsFalseIfItHasNoBalance() public 
+{
+// we roll the blockchain and check its valididty
+vm.warp(block.timestamp + interval +1);//current block +30 +1 sec
+vm.roll(block.number +1);
+
+//act
+(bool upkeepNeeded,)=raffle.checkUpkeep("");
+
+//assert
+assert(!upkeepNeeded);
+}
+
+function testCheckUpkeepReturnsFalseIfRaffleIsntOpen() public
+{
+vm.prank(PLAYER);
+raffle.enterRaffle{value:entranceFee}();
+vm.warp(block.timestamp + interval +1);
+vm.roll(block.number +1);
+raffle.performUpkeep("");
+//act
+(bool upkeepNeeded,)=raffle.checkUpkeep("");
+
+//assert
+assert(!upkeepNeeded);
+}
+//forge test --mt test_name
 }
 /**
  * 1. Arrange
