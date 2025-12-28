@@ -173,21 +173,30 @@ raffle.performUpkeep("");
 //assert
 assert(!upkeepNeeded);
 }
-//forge test --mt test_name
+//forge test --mt test_name -vvvv ->to see error output
 
 //headers _your_header -> creates for you a header
+
+//to prevents repeating you an use a modifier
+//modularise something that is to be repeated
+modifier RaffleEntered(){
+  vm.prank(PLAYER);
+raffle.enterRaffle{value:entranceFee}();
+vm.warp(block.timestamp + interval +1);
+vm.roll(block.number +1);
+_;
+}
+
 
 
 //testCheckUpkeepReturnsFalseIfEnoughTimeHasPassed
 //testCheckUpkeepReturnsTrueIfParametersAreGood
 
 //we want to ensure that perform upkeep is called when checkupkeep is true
-function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public {
+function testPerformUpkeepCanOnlyRunIfCheckUpkeepIsTrue() public RaffleEntered{
 //arrange
-vm.prank(PLAYER);
-raffle.enterRaffle{value:entranceFee}();
-vm.warp(block.timestamp + interval +1);
-vm.roll(block.number +1);
+//modifier details
+
 //act/assert
 raffle.performUpkeep("");//if this function errors then this test will fail
 
@@ -202,8 +211,48 @@ uint256 currentBalance=0;
 uint256 numPlayers=0;
 Raffle.RaffleState rState=raffle.getRaffleState();
 
-}
+vm.prank(PLAYER);
+raffle.enterRaffle{value:entranceFee}();
+currentBalance=currentBalance+entranceFee;
+numPlayers=1;
+
+
 //act/assert
+vm.expectRevert(
+abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector,currentBalance,numPlayers,rState)
+
+);
+raffle.performUpkeep("");
+
+
+
+}
+//what if we need to get data from emitted events in our tests?
+
+function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId() public{
+vm.prank(PLAYER);
+raffle.enterRaffle{value:entranceFee}();
+vm.warp(block.timestamp + interval +1);
+vm.roll(block.number +1);
+// we shall call perform upkeep but we shall store all the logs using foundry
+//we shall gett he request id by reading the logs in foundry
+
+//vm.recordLogs()
+//what ever events emitted by performUpkeep keep them in an array
+vm.recordLogs();
+raffle.performUpkeep("");
+Vm.Log[] memory entries=vm.getRecordedLogs();//this line says that all these events emitted stick them in entries array
+//every thing in the logs is stored as bytes32
+bytes32 requestId=entries[1].topics[1];
+
+//assert
+Raffle.RaffleState raffleState = raffle.getRaffleState();
+asssert(uint256(requestId)>0);//to make sure there is no request id that wasnt blank
+assert(uint256(raffleState)==1);//we get requestId when raffle state is converted
+
+}
+
+
 
 }
 /**

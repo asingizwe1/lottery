@@ -59,7 +59,7 @@ enum RaffleState {
     //2.  Makes front end indexing easier - getting data off blockchain becomes easier
 event RaffleEntered(address indexed player);
 event WinnerPicked(address indexed winner);
-
+event RequestedRaffleWinner(uint256 indexed requestId);
 
 //since we are inheriting from VRFConsumerBaseV2Plus we slao tweak the constructor here
 //we put "address vrfCoordinator" so that we can pass it to the parent constructor just like "VRFConsumerBaseV2Plus(vrfCoordinator)"
@@ -150,7 +150,7 @@ function checkUpkeep(bytes calldata /*checkData*/) public view returns (bool upk
         )
     });// this is how we are calling chainlink VRF to get random number
     
-   s_vrfCoordinator.requestRandomWords(request);
+   uint256 requestId=s_vrfCoordinator.requestRandomWords(request);
         //we call the pick winner function
 
     }
@@ -184,7 +184,11 @@ function checkUpkeep(bytes calldata /*checkData*/) public view returns (bool upk
                 )
             })     //we make the request bu calling vrfCoordinator contract
              uint256 requestId = s_vrfCoordinator.requestRandomWords(request);}
+emit RequestedRaffleWinner(requestId);
 
+
+
+}
 /**CEI:checks,effects,Interactions pattern
  * Checks
  * 
