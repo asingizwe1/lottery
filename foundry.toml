@@ -8,9 +8,12 @@ remappings = [
     '@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/',
     '@solmate=lib/solmate/src',
 ]
-#fs_permissions-> means we shall give foundry read access to the ./broadcast folder 
 fs_permissions[
 {access ='read', path="./broadcast"},
 {access ='read', path="./reports"}
 
 ]
+#fs_permissions-> means we shall give foundry read access to the ./broadcast folder 
+#initially fuzz test value is 256 but when you increase it to 1000 it will run to there
+[fuzz]
+runs = 10000

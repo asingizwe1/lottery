@@ -8,6 +8,8 @@ import {Test} from "forge-std/Test.sol";
 import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {Raffle} from "../../src/Raffle.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
+//import{Vm}
+import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2_5Mock.sol";  
 
 contract RaffleTest is Test {
   event RaffleEntered(address indexed player);
@@ -251,7 +253,21 @@ asssert(uint256(requestId)>0);//to make sure there is no request id that wasnt b
 assert(uint256(raffleState)==1);//we get requestId when raffle state is converted
 
 }
+/*/////////////////////////////////////////
+FULFILLRANDOMWORDS
+/////////////////////////////////////////*/
+//write a test to show that perform upkeep is called after fulfill random words
+//it is also a stateless fuzztest
+function testFulFillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public RaffleEntered{
+//when you set fuzz runs in foundry.toml,randomRequestId will be set to thats value
 
+//arrange/act/assert
+vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId,address(raffle));//only chain link nodes can call fulfill random words
+//when we are running this test we are pretending to be vrfCoordinator
+
+
+}
 
 
 }
