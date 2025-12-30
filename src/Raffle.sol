@@ -281,7 +281,7 @@ if (msg.sender !=address s(_vrfCoordinator)) {
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
     }
-
+//add getters which can be called in tests
 function getRaffleState() external view returns (s_raffleState){
 
     return s_raffleState;
@@ -289,6 +289,16 @@ function getRaffleState() external view returns (s_raffleState){
 
 function getPlayer(uint256 indexOfPlayer) external view returns (address){
     return s_players[indexOfPlayer];
+
+}
+
+function getLastTimeStamp() external view returns (uint256){
+    return s_lastTimestamp;
+
+}
+function getRecentWinner() external view returns (address){
+
+    return s_RecentWinner;
 
 }
 //CHAINLINK VRF

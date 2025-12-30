@@ -21,14 +21,14 @@ if(config.subscriptionId==0){
 CreateSubscription createSubscription= new CreateSubscription();
 //call create subscription
 (config.subscriptionId,config.vrfCoordinator)=
-CreateSubscription.createSubscription(config.vrfCoordinator);
+CreateSubscription.createSubscription(config.vrfCoordination,account);
 //we need to fund it after importing it
 
 FundSubscription fundSubscription = new FundSubscription();
 fundSubscription.fundSubscription(config.vrfCoordinator,confg.sunscriptionId,config.link)
 
 }
-vm.startBroadcast();
+vm.startBroadcast(config.account);//that will be the account in our helper config
 
 //update the script so that we add our consumer
 Raffle raffle= new Raffle(//we can get the values from getConfig
@@ -47,7 +47,7 @@ AddConsumer addConsumer=new AddConsumer();
 
 //WE DONT NEED TO BRADCAST BECUASE THE ADD CONSUMER FUNCTION HAS IT
 addConsumer.addConsumer(address(raffle)//THE RAFFLE IS OUR NEW DEPLOYED RAFFLE
-config.vrfCoordinator,config.subscriptionId
+config.vrfCoordinator,config.subscriptionId,config.account
 );
 
 return (raffle,helperConfig);

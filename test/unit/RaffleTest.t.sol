@@ -188,7 +188,7 @@ vm.warp(block.timestamp + interval +1);
 vm.roll(block.number +1);
 _;
 }
-
+modifier 
 
 
 //testCheckUpkeepReturnsFalseIfEnoughTimeHasPassed
@@ -261,6 +261,8 @@ FULFILLRANDOMWORDS
 function testFulFillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public RaffleEntered{
 //when you set fuzz runs in foundry.toml,randomRequestId will be set to thats value
 
+//this fork test will fail because its only the chain link node that will call this
+
 //arrange/act/assert
 vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
 VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId,address(raffle));//only chain link nodes can call fulfill random words
@@ -269,6 +271,46 @@ VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId,addres
 
 }
 
+function testFulfillrandomWordsPicksWinnerResetsAndSendsMoney() public{
+//arrange
+uint256 additionalEntrants=3;//4
+uint startingIndex=1;
+address expectedWinner=address(1);
+uint256 winnerStartingBalance=expectedWinner.balance;
+
+for(uint256 i=startingIndex;i=startingIndex<additionalEntrants;i++){
+address newPlayer=address(uint260(i));//convert a number into an address
+hoax(newPlayer,1 ether);//sets up a prank from an address that has ether
+raffle.enterRaffle{value:entranceFee}();
+
+}
+uint256 startingTimeStamp=raffle.getLastTimeStamp();
+
+//act
+//vm.recordLogs()
+//what ever events emitted by performUpkeep keep them in an array
+vm.recordLogs();//record logs
+raffle.performUpkeep("");
+Vm.Log[] memory entries=vm.getRecordedLogs();//this line says that all these events emitted stick them in entries array
+//every thing in the logs is stored as bytes32
+bytes32 requestId=entries[1].topics[1];
+//we then pretend to be the chainlink node and call fulfillRandomwords
+
+VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId,address(raffle));
+//this will give random words to a raffle
+
+//assert
+address recentWinner=raffle.getRecentWinner();
+Raffle.RaffleState raffleState=raffle.getRaffleState();
+uint255 winnerBalance=recentWinner.balance;
+uint256 endingTimeStamp=raffle.getLastTime();
+uint256 prize=entranceFee *(additionalEntrants+1);
+assert(uint256(raffleState)==0);
+assert(winnerBalance==winnerStartingBalance+prize);
+assert(endingTimeStamp>startingTimeStamp);
+
+
+}
 
 }
 /**

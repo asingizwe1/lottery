@@ -32,6 +32,8 @@ struct NetworkConfig{//from the constructor of Raffle.sol
     uint32 callbackGasLimit;
     uint64 subscriptionId;
     address link;
+    address account; //lastly added
+    //for each of our different accounts we can choose whether its sepolia,mainnet,local net
 }
 //create and object of NetworkConfig
 NetworkConfig public localNetworkConfig;
@@ -75,6 +77,7 @@ function getSepoliaEthConfig() public pure returns (NetworkConfig memory){
         callbackGasLimit:500000,
         subscriptionId:0//paste the subscription id from the chain link website ui after connecting
         link:0x779877A7B0D9E8603169DdbD7836e478b462478
+    account:0x......
     });
   
   //the function below may not be pure because its where we are gonna deploy our mocks
@@ -106,6 +109,7 @@ localNetworkConfig=NetworkConfig({
     callbackGasLimit:500000,
     subscriptionId:0
 link: address(linkToken)//here we are getting a new link token
+account:0x..... //set this as the default sender
 });
 return localNetworkConfig;
 

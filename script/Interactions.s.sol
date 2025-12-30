@@ -12,15 +12,16 @@ function createSubscriptionUsingConfig() public returns (uint256,address){
 HelperConfig helperConfig= new HelperConfig();//this is the helper config contract
 //we need to get the vrf coordinator address so we follow the steps below
 address vrfCoordinator= helperConfig.getConfig().vrfCoordinator;//getConfig()-> this will return the network config of active network
+address account=helperConfig.getConfig().account;
 //.vrfCoordinator-> will return address of vrf coordinator for that network
 (uint256 subId,)=CreateSubscription(vrfCoordinator);
 return (subId,vrfCoordinator);
 }
 
 //function to create subscription
-function createSubscription(address vrfCoordinator) public returns (uint256,address) {
+function createSubscription(address vrfCoordinator,address account) public returns (uint256,address) {
 console.log("Creating subscription on vrf coordinator:",block.chainid);
-vm.startBroadcast();
+vm.startBroadcast(account);
 uint256 subId= VRFCoordinatorV2_5Mock(vrfCoordinator).createSubscription();
 vm.stopBroadcast();
 console.log("Your subscription id is:",subId);
@@ -43,10 +44,13 @@ address vrfCoordinator= helperConfig.getConfig().vrfCoordinator;
 //we shall need vrf coordinator address and subscription id to fund the subscription
 uint256 subscriptionId= helperConfig.getConfig().subscriptionId;
 address linkToken=helperConfig.getConfig().link;
-fundSubscription(vrfCoordinator,subscriptionId, linkToken);
+
+address account =helperConfig.getConfig().account;
+fundSubscription(vrfCoordinator,subscriptionId, linkToken,account);
 }
 
-function fundSubscription(address vrfCoordinator,uint256 subscriptionId, address linkToken) public{
+function fundSubscription(address vrfCoordinator,uint256 subscriptionId, 
+address linkToken,address account) public{
     
 console.log("Funding subscription",subscriptionId);
 console.log("Funding vrfCoordinator",vrfCoordinator);
@@ -54,11 +58,11 @@ console.log("On ChainId",block.chainid);
 
 if(block.chainId==LOCAL_CHAIN_ID){
     vm.startBroadcast();
-VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId,FUND_AMOUNT);
+VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId,FUND_AMOUNT*100);//fund our local chain with 300
   vm.startBroadcast()
 }else
 {
-  vm.startBroadcast();
+  vm.startBroadcast(account);
 LinkToken(linkToken).transferAndCall(vrfCoordinator,FUND_AMOUNT,abi.encode(subscriptionId));
 //you can fund subscription with native eth
   vm.startBroadcast();
@@ -83,14 +87,17 @@ HelperConfig helperConfig= new HelperConfig();
 uint256 subId = helperConfig.getConfig().subscriptionId;
 address vrfCoordinator= helperConfig.getConfig().vrfCoordinator;
 addConsumer(mostRecentlyDeployed,//??//somecontract,
-vrfCoordinator,subId);
+
+address account=helperConfig.getConfig().account;
+vrfCoordinator,subId,account);
 }
+
 function addConsumer(address contractToAddtoVrf,
-address vrfCoordinator , uint256 subId) public{
+address vrfCoordinator , uint256 subId, address account) public{
 console.log("adding consumer contract",contractToAddtoVrf);
 console.log("to vrfCoordinator",vrfCoordinator);
 console.log("On ChainId",block.chainId);
-vm.startBroadcast();
+vm.startBroadcast(account);
 VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(subId,constractToAddToVrf);//in the dashboard at chain link when you click add consumer this line will ensure that this works the same
 vm.stopBroadcast();
 
