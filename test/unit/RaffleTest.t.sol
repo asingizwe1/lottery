@@ -9,9 +9,11 @@ import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {Raffle} from "../../src/Raffle.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 //import{Vm}
+import {Vm} from "forge-std/Vm.sol"
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2_5Mock.sol";  
+import {CodeConstants} from "script/HelperConfig.s.sol";
 
-contract RaffleTest is Test {
+contract RaffleTest is CodeConstant Test {
   event RaffleEntered(address indexed player);
 event WinnerPicked(address indexed winner);
 
@@ -188,7 +190,12 @@ vm.warp(block.timestamp + interval +1);
 vm.roll(block.number +1);
 _;
 }
-modifier 
+modifier skipFork(){
+if(block.chainid!=LOCAL_CHAIN_ID){
+  return;
+}
+_;
+}
 
 
 //testCheckUpkeepReturnsFalseIfEnoughTimeHasPassed
@@ -258,7 +265,7 @@ FULFILLRANDOMWORDS
 /////////////////////////////////////////*/
 //write a test to show that perform upkeep is called after fulfill random words
 //it is also a stateless fuzztest
-function testFulFillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public RaffleEntered{
+function testFulFillrandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public skipFork RaffleEntered{
 //when you set fuzz runs in foundry.toml,randomRequestId will be set to thats value
 
 //this fork test will fail because its only the chain link node that will call this
@@ -271,7 +278,7 @@ VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId,addres
 
 }
 
-function testFulfillrandomWordsPicksWinnerResetsAndSendsMoney() public{
+function testFulfillrandomWordsPicksWinnerResetsAndSendsMoney() public skipFork{
 //arrange
 uint256 additionalEntrants=3;//4
 uint startingIndex=1;
